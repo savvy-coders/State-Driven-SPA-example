@@ -8,13 +8,13 @@ function render(st = state.Home) {
   ${Main(st)}
   ${Footer()}
 `;
-  addNavEventListeners();
+  addEventListeners();
   addPicOnFormSubmit(st);
 }
 
 render();
 
-function addNavEventListeners() {
+function addEventListeners() {
   // add event listeners to Nav items for navigation
   document.querySelectorAll("nav a").forEach(navLink =>
     navLink.addEventListener("click", event => {
