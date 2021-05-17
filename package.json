@@ -22,5 +22,9 @@
     "stylelint-config-recommended": "^3.0.0",
     "stylelint-prettier": "^1.1.1",
     "stylelint-vscode": "^7.0.0-6"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "navigo": "^7.1.3"
   }
 }
