@@ -1,6 +1,10 @@
 import { Header, Nav, Main, Footer } from "./components";
 import * as state from "./store";
+import axios from "axios";
+import Navigo from "navigo";
+import { capitalize } from "lodash";
 
+const router = new Navigo(window.location.origin);
 function render(st = state.Home) {
   document.querySelector("#root").innerHTML = `
   ${Header(st)}
@@ -8,6 +12,7 @@ function render(st = state.Home) {
   ${Main(st)}
   ${Footer()}
 `;
+  router.updatePageLinks();
   addEventListeners();
   addPicOnFormSubmit(st);
 }
@@ -49,3 +54,37 @@ function addPicOnFormSubmit(st) {
     });
   }
 }
+
+axios.get("https://jsonplaceholder.typicode.com/posts").then(response => {
+  response.data.forEach(post => {
+    state.Blog.posts.push(post);
+  });
+  // use our router Object to find the "current page"/last resolved route
+  // const params = router.lastRouteResolved().params;
+  // // this params key "page" is the same as our "variable" we specified in our router's on() method
+  // render(state[params.page]);
+  // console.log(state[params]);
+});
+
+axios
+  .get(
+    `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
+  )
+  .then(response => {
+    state.Home.weather.city = response.data.name;
+    console.log(response.data.name);
+    state.Home.weather.temp = response.data.main.temp;
+    console.log(response.data.main.temp);
+    state.Home.weather.feelsLike = response.data.main.feels_like;
+    console.log(response.data.main.feels_like);
+    state.Home.weather.description = response.data.weather[0].main;
+    console.log(response.data.weather[0].main);
+  })
+  .catch(err => console.log(err));
+
+router
+  .on({
+    "/": () => render(state.Home),
+    ":page": params => render(state[capitalize(params.page)])
+  })
+  .resolve();
