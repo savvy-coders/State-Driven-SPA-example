@@ -5,6 +5,64 @@ import Navigo from "navigo";
 import { capitalize } from "lodash";
 
 const router = new Navigo(window.location.origin);
+
+axios
+  .get(
+    `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
+  )
+  // .then((callResponse) => response.json())
+  .then((response) => {
+    if (response.status === 200) {
+      // console.log(response.data);
+      state.Home.weather.name = response.data.name;
+      console.log(response.data.name);
+      console.log(state.Home.weather.name);
+      state.Home.weather.temp = response.data.main.temp;
+      // console.log(response.data.main.temp);
+      // console.log(state.Home.weather.temp);
+      state.Home.weather.feelsLike = response.data.main.feels_like;
+      // console.log(response.data.main.feels_like);
+      // console.log(state.Home.weather.feelsLike);
+      state.Home.weather.description = response.data.weather[0].description;
+      // console.log(response.data.weather[0].description);
+      // console.log(state.Home.weather.description);
+    }
+    return true;
+  })
+  .catch((err) => console.log(err));
+
+axios.get("https://jsonplaceholder.typicode.com/posts").then((response) => {
+  response.data.forEach((post) => {
+    state.Blog.posts.push(post);
+  });
+  // use our router Object to find the "current page"/last resolved route
+  // const params = router.lastRouteResolved().params;
+  // // this params key "page" is the same as our "variable" we specified in our router's on() method
+  // render(state[params.page]);
+  // console.log(state[params]);
+});
+
+axios
+  .get(
+    `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
+  )
+  .then((response) => {
+    // console.log(response.data);
+    state.Home.weather.name = response.data.name;
+    // console.log(response.data.name);
+    // console.log(state.Home.weather.name);
+    state.Home.weather.temp = response.data.main.temp;
+    // console.log(response.data.main.temp);
+    // console.log(state.Home.weather.temp);
+    state.Home.weather.feelsLike = response.data.main.feels_like;
+    // console.log(response.data.main.feels_like);
+    // console.log(state.Home.weather.feelsLike);
+    state.Home.weather.description = response.data.weather[0].description;
+    // console.log(response.data.weather[0].description);
+    // console.log(state.Home.weather.description);
+  })
+  .catch((err) => console.log(err));
+
 function render(st = state.Home) {
   document.querySelector("#root").innerHTML = `
   ${Header(st)}
@@ -17,16 +75,22 @@ function render(st = state.Home) {
   addPicOnFormSubmit(st);
 }
 
-render();
+router
+  .on({
+    "/": () => render(state.Home),
+    ":page": (params) => render(state[capitalize(params.page)]),
+  })
+  .resolve();
 
 function addEventListeners() {
   // add event listeners to Nav items for navigation
-  document.querySelectorAll("nav a").forEach(navLink =>
-    navLink.addEventListener("click", event => {
+  document.querySelectorAll("nav a").forEach((navLink) =>
+    navLink.addEventListener("click", (event) => {
       event.preventDefault();
       render(state[event.target.title]);
     })
   );
+
   // add menu toggle to bars icon in nav bar
   document
     .querySelector(".fa-bars")
@@ -37,7 +101,7 @@ function addEventListeners() {
 
 function addPicOnFormSubmit(st) {
   if (st.view === "Form") {
-    document.querySelector("form").addEventListener("submit", event => {
+    document.querySelector("form").addEventListener("submit", (event) => {
       event.preventDefault();
       // convert HTML elements to Array
       let inputList = Array.from(event.target.elements);
@@ -54,37 +118,3 @@ function addPicOnFormSubmit(st) {
     });
   }
 }
-
-axios.get("https://jsonplaceholder.typicode.com/posts").then(response => {
-  response.data.forEach(post => {
-    state.Blog.posts.push(post);
-  });
-  // use our router Object to find the "current page"/last resolved route
-  // const params = router.lastRouteResolved().params;
-  // // this params key "page" is the same as our "variable" we specified in our router's on() method
-  // render(state[params.page]);
-  // console.log(state[params]);
-});
-
-axios
-  .get(
-    `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
-  )
-  .then(response => {
-    state.Home.weather.city = response.data.name;
-    console.log(response.data.name);
-    state.Home.weather.temp = response.data.main.temp;
-    console.log(response.data.main.temp);
-    state.Home.weather.feelsLike = response.data.main.feels_like;
-    console.log(response.data.main.feels_like);
-    state.Home.weather.description = response.data.weather[0].main;
-    console.log(response.data.weather[0].main);
-  })
-  .catch(err => console.log(err));
-
-router
-  .on({
-    "/": () => render(state.Home),
-    ":page": params => render(state[capitalize(params.page)])
-  })
-  .resolve();
