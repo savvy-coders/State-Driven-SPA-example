@@ -6,13 +6,6 @@ import { capitalize } from "lodash";
 
 const router = new Navigo(window.location.origin);
 
-router
-  .on({
-    ":page": params => render(state[capitalize(params.page)]),
-    "/": () => render(state.Home)
-  })
-  .resolve();
-
 function render(st = state.Home) {
   document.querySelector("#root").innerHTML = `
   ${Header(st)}
@@ -64,10 +57,7 @@ function addEventListeners(st) {
 
 router.hooks({
   before: (done, params) => {
-    const page =
-      params && Object.prototype.hasOwnProperty.call(params, "page")
-        ? capitalize(params.page)
-        : "Home";
+    const page = params && params.hasOwnProperty("page") ? capitalize(params.page) : "Home";
 
     if (page === "Blog") {
       state.Blog.posts = [];
