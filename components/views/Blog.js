@@ -4,9 +4,9 @@ export default st => html`
   <section id="blog">
     ${st.posts
       .map(post => {
-        formatBlogPost(post);
+        return formatBlogPost(post);
       })
-      .join()}
+      .join("")}
   </section>
 `;
 

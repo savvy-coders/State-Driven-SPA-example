@@ -7,7 +7,6 @@ import { capitalize } from "lodash";
 const router = new Navigo(window.location.origin);
 
 function render(st = state.Home) {
-  console.log("matsinet-st:", st);
   document.querySelector("#root").innerHTML = `
   ${Header(st)}
   ${Nav(state.Links)}
@@ -58,34 +57,48 @@ function addPicOnFormSubmit(st) {
 
 router.hooks({
   before: (done, params) => {
-    axios.get("https://jsonplaceholder.typicode.com/posts").then(response => {
-      response.data.forEach(post => {
-        state.Blog.posts.push(post);
-      });
-      // use our router Object to find the "current page"/last resolved route
-      // const params = router.lastRouteResolved().params;
-      // // this params key "page" is the same as our "variable" we specified in our router's on() method
-      // render(state[params.page]);
-      // console.log(state[params]);
-    });
+    console.log("matsinet-params:", params);
+    done();
 
-    axios
-      .get(
-        `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
-      )
-      .then(response => {
-        state.Home.weather = {};
-        state.Home.weather.city = response.data.name;
-        console.log(response.data.name);
-        state.Home.weather.temp = response.data.main.temp;
-        console.log(response.data.main.temp);
-        state.Home.weather.feelsLike = response.data.main.feels_like;
-        console.log(response.data.main.feels_like);
-        state.Home.weather.description = response.data.weather[0].main;
-        console.log(response.data.weather[0].main);
-        done();
-      })
-      .catch(err => console.log(err));
+    const page =
+      params && Object.prototype.hasOwnProperty.call(params, "page")
+        ? capitalize(params.page)
+        : "Home";
+
+    console.log("matsinet-page:", page);
+
+    if (page === "Blog") {
+      console.log("matsinet-executing Blog axios");
+      state.Blog.posts = [];
+      axios.get("https://jsonplaceholder.typicode.com/posts").then(response => {
+        console.log("matsinet-response:", response);
+        response.data.forEach(post => {
+          state.Blog.posts.push(post);
+          done();
+        });
+      });
+    }
+
+    if (page === "Home") {
+      console.log("matsinet-executing Home axios");
+      axios
+        .get(
+          `https://api.openweathermap.org/data/2.5/weather?appid=fbb30b5d6cf8e164ed522e5082b49064&q=st.%20louis`
+        )
+        .then(response => {
+          state.Home.weather = {};
+          state.Home.weather.city = response.data.name;
+          console.log(response.data.name);
+          state.Home.weather.temp = response.data.main.temp;
+          console.log(response.data.main.temp);
+          state.Home.weather.feelsLike = response.data.main.feels_like;
+          console.log(response.data.main.feels_like);
+          state.Home.weather.description = response.data.weather[0].main;
+          console.log(response.data.weather[0].main);
+          done();
+        })
+        .catch(err => console.log(err));
+    }
   }
 });
 
